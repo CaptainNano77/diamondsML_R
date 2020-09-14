@@ -1,0 +1,213 @@
+---
+title: "Diamonds ML R Notebook"
+output: html_notebook
+---
+Diamonds ML R Notebook
+Robert M. Taylor, PhD
+
+
+This notebook is to demonstrate Exploratory Data Analysis (EDA), visualizations, and machine learning in R on the diamonds dataset that is available in R. "Price" will be our target.
+
+I'll first import the libraries I'll use.
+```{r}
+#install.packages('ggplot2')
+#install.packages('GGally')
+library(ggplot2)
+library(GGally)
+library(rpart)
+library(randomForest)
+library(tidyr)
+library(modelr)
+```
+
+Load the dataset
+```{r}
+data(diamonds)
+```
+
+I'll just look at/inspect the dataset first. This is a clean data set so data cleaning will not be needed or demonstrated in this notebook.
+```{r}
+head(diamonds)
+```
+
+What are the dimensions of the dataset?
+```{r}
+dim(diamonds)
+```
+
+So there are 53,940 rows and 10 feature columns.
+
+I'll now get 1) a summary and 2) the structure of the data...
+```{r}
+summary(diamonds)
+```
+
+I see that there is an (Other) variable for Clarity. I want to look at that closer.
+```{r}
+unique(diamonds$clarity)
+```
+
+So, everything appears good. The summary has just grouped the I1 and IF clarities in the count values in the summary table above. 
+
+We also see that the price ranges from a minimium price of $326 to a max of $18,823
+
+I'll go ahead and open a View of the dataset in R-studio so I can easily view it going forward.
+```{r}
+View(diamonds)
+```
+```{r}
+str(diamonds)
+```
+
+I'll now look at caret vs price using ggplot2 
+
+```{r}
+g <- ggplot(diamonds, aes(x=carat, y=price))
+g + 
+  geom_point(aes(color=clarity)) +
+  facet_grid(cut ~ clarity)+
+  theme_bw()
+```
+
+I'll use a boxplot to look at cut vs. price. 
+
+```{r}
+diamonds$cut = as.factor(diamonds$cut)
+g <- ggplot(diamonds, aes(x=cut, y=price))
+g +
+  geom_boxplot()+
+  facet_grid(~clarity)+
+  theme(axis.text.x = element_text(angle = 90, face = "bold", color = "#993333", 
+                           size = 9))+
+  theme(axis.text.y = element_text(face = "bold", color = "#993333"))
+```
+We can also look at the carat vs. color vs. price
+```{r}
+g <- ggplot(diamonds, aes(x=carat, y=price))
+g +
+geom_point(aes(color = color))
+```
+I'll now look at the distribution of carat and price.
+
+```{r}
+g <- ggplot(diamonds)
+g +
+  geom_density(aes(x=carat), fill="gray50")
+```
+
+
+```{r}
+g <- ggplot(diamonds)
+g +
+  geom_density(aes(x=price), fill="gray")
+```
+So, thus far, we can now see that most diamonds are < 2 carats and < ~$2500 (although a second peak can be seen around $4000). 
+
+M.L.
+
+DECISION TREE
+BUILD MODEL
+I'll first use a decision tree model to predict the diamond prices.
+```{r}
+colnames(diamonds)
+```
+
+SPLIT THE DATA (70/30 split)
+
+```{r}
+splitData <- resample_partition(diamonds, c(test=0.3, train=0.7))
+```
+
+How many cases are in the test and training sets?
+
+```{r}
+lapply(splitData, dim) 
+```
+
+```{r}
+# train the tree
+fit <- rpart(price ~ carat + cut + color + clarity + depth + table + x + y + z, data = splitData$train)
+```
+
+```{r, fig.width = 7, fig.height = 6}
+#plot the regression tree
+plot(fit, uniform=TRUE)
+text(fit, cex=1)
+
+```
+
+...What if we reomive the x, y, z, data, and table features?
+These above group are features that are not easily available to the common consumer, like me shopping for a new ring.
+Therefore, I'll see how the fit is with only the readily available features, carat, cut, color, and clarity.
+
+```{r}
+# train the tree
+fit2 <- rpart(price ~ carat + cut + color + clarity, data = splitData$train)
+```
+
+```{r, fig.width = 7, fig.height = 6}
+#plot the regression tree
+plot(fit2, uniform=TRUE)
+text(fit2, cex=1)
+
+```
+
+I'LL USE THE 'fit2' MODEL SINCE IT MAKES MORE SENSE FOR MY ENGAGEMENT RING SHOPPING SINCE CARAET, CLARITY, ETC ARE THINGS I CAN EASILY FIND OUT FROM A SELLAR, WHEREAS 'x, y, and z'ARE NOT.
+
+
+DECISION TREE MODEL
+PREDICT DIAMOND PRICES
+Now, that I've generated a decision tree model, I'll now use it to predict prices.
+
+DECISION TREE MODEL
+EVALUATION
+
+MAE (Mean absolute Error)
+```{r}
+mae(model = fit2, data=splitData$test)
+```
+
+I'll build a function to help compare MAE scores from different values for the tree depth (maxdepth)...
+
+```{r}
+# A function to get the maximum average error for a given max depth. You should pass in
+# the target as the name of the target colum and the predictors as vector where each
+# item in the vector is the name of the column.
+
+get_mae <- function(maxdepth, target, predictors, training_data, testing_data){
+  #turn the predictors & target into a formula to pass to rpart 
+  predictors <- paste(predictors, collapse='+')
+  formula <- as.formula(paste(target, "~", predictors, sep = ""))
+  #build our model
+  model <- rpart(formula, data=training_data, control = rpart.control(maxdepth = maxdepth))
+  #get the mae
+  mae <- mae(model, testing_data)
+  return(mae)
+}
+```
+
+
+```{r}
+#Feed in the target and predictors
+target <- "price"
+predictors <- c("carat", "cut", "color", "clarity")
+# get the MaE for the maxdepths between 1 and 10
+for(i in 1:10){
+  mae <- get_mae(maxdepth = i, target = target, predictors = predictors,
+                 training_data = splitData$train, testing_data = splitData$test)
+  print(glue::glue("Maxdepth: ",i, "\t MAE: ", mae))
+}
+```
+
+RANDOM FOREST
+
+```{r}
+fitRandomForest <- randomForest(price ~ carat + cut + color + clarity, data=splitData$train)
+mae(model = fitRandomForest, data=splitData$test)
+```
+
+
+
+
+
+
