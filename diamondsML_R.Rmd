@@ -1,6 +1,8 @@
 ---
 title: "Diamonds ML R Notebook"
-output: html_notebook
+output:
+  html_document:
+    df_print: paged
 ---
 Diamonds ML R Notebook
 Robert M. Taylor, PhD
@@ -50,10 +52,8 @@ So, everything appears good. The summary has just grouped the I1 and IF claritie
 
 We also see that the price ranges from a minimium price of $326 to a max of $18,823
 
-I'll go ahead and open a View of the dataset in R-studio so I can easily view it going forward.
-```{r}
-View(diamonds)
-```
+I'll go ahead and look at the structure of the dataset...
+
 ```{r}
 str(diamonds)
 ```
@@ -247,6 +247,7 @@ print(maeLinear)
 print("Logistic Regression")
 print(maeLogistic)
 ```
+
 
 
 
