@@ -1,8 +1,6 @@
 ---
 title: "Diamonds ML R Notebook"
-output:
-  rmarkdown::github_document:
-    df_print: paged
+output:rmarkdown::github_document
 ---
 Diamonds ML R Notebook
 Robert M. Taylor, PhD
