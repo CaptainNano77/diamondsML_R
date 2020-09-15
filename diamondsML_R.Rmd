@@ -1,7 +1,7 @@
 ---
 title: "Diamonds ML R Notebook"
 output:
-  html_document:
+  rmarkdown::github_document:
     df_print: paged
 ---
 Diamonds ML R Notebook
