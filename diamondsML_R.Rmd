@@ -6,18 +6,17 @@ Diamonds ML R Notebook
 Robert M. Taylor, PhD
 
 
-This notebook is to demonstrate Exploratory Data Analysis (EDA), visualizations, and machine learning in R on the diamonds dataset that is available in R. "Price" will be our target.
+This notebook is to demonstrate Exploratory Data Analysis (EDA), visualizations, and machine learning in R on the diamonds dataset that is available in R. "Price" will be our target.s
 
 I'll first import the libraries I'll use.
 ```{r}
-#install.packages('ggplot2')
-#install.packages('GGally')
 library(ggplot2)
 library(GGally)
 library(rpart)
 library(randomForest)
 library(tidyr)
 library(modelr)
+
 ```
 
 Load the dataset
@@ -164,7 +163,8 @@ EVALUATION
 
 MAE (Mean absolute Error)
 ```{r}
-mae(model = fit2, data=splitData$test)
+maeTree <-mae(model = fit2, data=splitData$test)
+maeTree
 ```
 
 I'll build a function to help compare MAE scores from different values for the tree depth (maxdepth)...
@@ -203,10 +203,50 @@ RANDOM FOREST
 
 ```{r}
 fitRandomForest <- randomForest(price ~ carat + cut + color + clarity, data=splitData$train)
-mae(model = fitRandomForest, data=splitData$test)
+maeForest <- mae(model = fitRandomForest, data=splitData$test)
+maeForest
 ```
 
+```{r}
+fitRandomForest
+```
 
+LINEAR MODEL
+
+```{r}
+fitLinear <- lm(price ~ carat + cut + color + clarity, data=splitData$train)
+maeLinear <- mae(model = fitLinear, data=splitData$test)
+maeLinear
+```
+```{r}
+summary(fitLinear)
+```
+```{r}
+coef(fitLinear)
+```
+
+LOGISTIC REGRESSION
+
+```{r}
+fitLogistic <- glm(price ~ carat + cut + color + clarity, data=splitData$train)
+maeLogistic <- mae(model = fitLogistic, data=splitData$test)
+maeLogistic
+summary(fitLogistic)
+```
+
+REPORT GENERATION
+
+```{r}
+print('REPORT')
+print("Decision Tree")
+print(maeTree)
+print("Random Forest")
+print(maeForest)
+print("Linear Regression")
+print(maeLinear)
+print("Logistic Regression")
+print(maeLogistic)
+```
 
 
 
