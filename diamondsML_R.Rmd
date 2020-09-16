@@ -1,6 +1,8 @@
 ---
 title: "Diamonds ML R Notebook"
-output: html_document 
+output:
+  word_document: default
+  html_document: default
 ---
 Diamonds ML R Notebook
 Robert M. Taylor, PhD.
