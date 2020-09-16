@@ -5,7 +5,7 @@ output:
     keep_md: yes
 ---
 Diamonds ML R Notebook
-Robert M. Taylor, PhD
+Robert M. Taylor, PhD.
 
 
 This notebook is to demonstrate Exploratory Data Analysis (EDA), visualizations, and machine learning in R on the diamonds dataset that is available in R. "Price" will be our target.s
