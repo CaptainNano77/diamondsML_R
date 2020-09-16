@@ -1,6 +1,13 @@
 ---
 title: "Diamonds ML R Notebook"
+<<<<<<< HEAD
 output: html_document 
+=======
+output:
+  pdf_document: default
+  html_document:
+    keep_md: yes
+>>>>>>> cd1ef7f67d0e93b72ac4be4d8420e7f0302e62cc
 ---
 Diamonds ML R Notebook
 Robert M. Taylor, PhD.
@@ -15,6 +22,7 @@ library(rpart)
 library(randomForest)
 library(tidyr)
 library(modelr)
+
 ```
 
 Load the dataset
@@ -204,7 +212,11 @@ tree.confusion <- table(tree.predictions, diamond.test$price)
 MAE (Mean absolute Error)
 ## calculate Mean Absolute Error (MAE)
 ```{r}
+<<<<<<< HEAD
 maeTree <-mae(model = diamond.tree.model, data=diamond.test)
+=======
+maeTree <-mae(model = fit2, data=splitData$test)
+>>>>>>> cd1ef7f67d0e93b72ac4be4d8420e7f0302e62cc
 maeTree
 ```
 
@@ -244,12 +256,18 @@ for(i in 1:10){
 RANDOM FOREST
 
 ```{r}
+<<<<<<< HEAD
 diamond.RandomForest <- randomForest(price ~ ., data=diamond.train)
 maeForest <- mae(model = diamond.RandomForest, data=diamond.test)
+=======
+fitRandomForest <- randomForest(price ~ carat + cut + color + clarity, data=splitData$train)
+maeForest <- mae(model = fitRandomForest, data=splitData$test)
+>>>>>>> cd1ef7f67d0e93b72ac4be4d8420e7f0302e62cc
 maeForest
 ```
 
 ```{r}
+<<<<<<< HEAD
 diamond.RandomForest
 ```
 
@@ -277,10 +295,14 @@ diamond.rf.confusion <- table(diamond.rf.predictions, diamond.test$price)
 ```{r}
 diamond.rf.accuracy <- sum(diag(diamond.rf.confusion)) / sum(diamond.rf.confusion)
 print(diamond.rf.accuracy)
+=======
+fitRandomForest
+>>>>>>> cd1ef7f67d0e93b72ac4be4d8420e7f0302e62cc
 ```
 
 LINEAR MODEL
 
+<<<<<<< HEAD
 
 ```{r}
 diamond.Linear <- lm(price ~ ., data=diamond.train)
@@ -359,7 +381,42 @@ print(maeLinear)
 The Random Forest Model clearly did this best as far as mean absolute error.
 
 
+=======
+```{r}
+fitLinear <- lm(price ~ carat + cut + color + clarity, data=splitData$train)
+maeLinear <- mae(model = fitLinear, data=splitData$test)
+maeLinear
+```
+```{r}
+summary(fitLinear)
+```
+```{r}
+coef(fitLinear)
+```
 
+LOGISTIC REGRESSION
+>>>>>>> cd1ef7f67d0e93b72ac4be4d8420e7f0302e62cc
+
+```{r}
+fitLogistic <- glm(price ~ carat + cut + color + clarity, data=splitData$train)
+maeLogistic <- mae(model = fitLogistic, data=splitData$test)
+maeLogistic
+summary(fitLogistic)
+```
+
+REPORT GENERATION
+
+```{r}
+print('REPORT')
+print("Decision Tree")
+print(maeTree)
+print("Random Forest")
+print(maeForest)
+print("Linear Regression")
+print(maeLinear)
+print("Logistic Regression")
+print(maeLogistic)
+```
 
 
 
