@@ -2,7 +2,11 @@
 title: "Diamonds ML R Notebook"
 output:
   word_document: default
+<<<<<<< HEAD
   pdf_document: default
+=======
+  html_document: default
+>>>>>>> 0bc9a6d612179184ca5cdb53bf64a8dd4455d6af
 ---
 Diamonds ML R Notebook
 Robert M. Taylor, PhD.
@@ -307,7 +311,7 @@ coef(diamond.Linear)
 ```
 
 
-VISUALIZE THE TRAINED MODEL
+VISUALIZE THE TRAINED MODEL.
 ```{r}
 layout(matrix(c(1,2,3,4),2,2)) # set 4 graphs/page 
 plot(diamond.Linear)
