@@ -1,8 +1,8 @@
 ---
 title: "Diamonds ML R Notebook"
 output:
-  word_document: default
-  html_document: default
+  pdf_document: default
+  pdfl_document: default
 ---
 Diamonds ML R Notebook
 Robert M. Taylor, PhD.
@@ -61,10 +61,6 @@ I'll first do a quick and dirty look at the data...
 ```{r, fig.width = 10, fig.height = 10}
 plot(diamonds)
 ```
-
-
-
-
 I'll now look at caret vs price using ggplot2 
 
 ```{r}
@@ -136,7 +132,21 @@ gg <- g + geom_point(aes(color = carat, alpha=0.9))
 gg + scale_color_gradient(low="blue", high="red") + theme_bw()
 ```
 
-
+I'll now change categorical values to numeric in the cut, color, and clarity features.
+```{r}
+print("cut values")
+unique(diamonds$cut)
+print("clarity values")
+unique(diamonds$clarity)
+print("color values")
+unique(diamonds$color)
+```
+now I'll map those categories to numerics
+```{r}
+diamonds = data.matrix(data.frame(unclass(diamonds)))
+diamonds = data.frame(diamonds)
+head(diamonds)
+```
 
 M.L.
 
@@ -166,45 +176,45 @@ I'll first use a decision tree model to predict the diamond prices.
 colnames(diamonds)
 ```
 
-## fitting decision model on training set 
+itting decision model on training set 
 ```{r}
 diamond.tree.model <- rpart(price ~ ., data=diamond.train)
 summary(diamond.tree.model)
 ```
 
-## VISUALIZE THE TRAINED MODEL
+VISUALIZE THE TRAINED MODEL
 ```{r}
 ## plot the tree structure
 plot(diamond.tree.model, margin=c(.25), uniform=TRUE)
 title(main = "Decision Tree Model of Diamonds Data")
 text(diamond.tree.model, use.n = TRUE, cex=.9)
 ```
-## make prediction using decision model
+make prediction using decision model
 ```{r}
 tree.predictions <- predict(diamond.tree.model, diamond.test)
 head(tree.predictions)
 ```
 
 
-## Comparison table
+Comparison table
 ```{r}
 diamond.comparison <- diamond.test
 diamond.comparison$Predictions <- tree.predictions
-diamond.comparison[ , c("price", "Predictions")]
+head(diamond.comparison[ , c("price", "Predictions")])
 ```
-## View misclassified rows
+View misclassified rows
 ```{r}
 disagreement.index <- diamond.comparison$price != diamond.comparison$Predictions
-diamond.comparison[disagreement.index,]
+head(diamond.comparison[disagreement.index,])
 ```
-## Extract the test data species to build the confusion matrix
+Extract the test data species to build the confusion matrix
 ```{r}
 tree.confusion <- table(tree.predictions, diamond.test$price)
 ```
 
 
 MAE (Mean absolute Error)
-## calculate Mean Absolute Error (MAE)
+calculate Mean Absolute Error (MAE)
 ```{r}
 maeTree <-mae(model = diamond.tree.model, data=diamond.test)
 maeTree
@@ -255,27 +265,27 @@ maeForest
 diamond.RandomForest
 ```
 
-# What features does the RF think are important?
+What features does the RF think are important?
 ```{r}
 importance(diamond.RandomForest)
 ```
 
 ```{r}
-varImpPlot(diamond.RandomForest)
+varImpPlot(diamond.RandomForest, sort=TRUE, col="purple")
 ```
-## MODEL EVALUATION
-## Predict test set outcomes, reporting class labels
+MODEL EVALUATION
+Predict test set outcomes, reporting class labels
 ```{r}
 diamond.rf.predictions <- predict(diamond.RandomForest, diamond.test, type="response")
 ```
 
-## calculate the confusion matrix
+calculate the confusion matrix
 ```{r}
 diamond.rf.confusion <- table(diamond.rf.predictions, diamond.test$price)
 #print(diamond.rf.confusion)
 ```
 
-## accuracy
+accuracy
 ```{r}
 diamond.rf.accuracy <- sum(diag(diamond.rf.confusion)) / sum(diamond.rf.confusion)
 print(diamond.rf.accuracy)
@@ -297,48 +307,47 @@ coef(diamond.Linear)
 ```
 
 
-## VISUALIZE THE TRAINED MODEL
+VISUALIZE THE TRAINED MODEL
 ```{r}
 layout(matrix(c(1,2,3,4),2,2)) # set 4 graphs/page 
 plot(diamond.Linear)
 ```
 
 
-## MODEL EVALUATION
-## make prediction using trained model
+MODEL EVALUATION
+make prediction using trained model
 ```{r}
 diamond.Linear.predictions <- predict(diamond.Linear, diamond.test)
 par(mfrow=c(1,1))
-plot(diamond.test$price, diamond.Linear.predictions)
+plot(diamond.test$price, diamond.Linear.predictions, lwd=.4, col= 'darkred', ylim = c(0,20000), xlim = c(0, 20000))
 ```
 ```{r}
 head(diamond.Linear.predictions)
 ```
 
-
-
-
-## calculate residuals
+calculate residuals
 ```{r}
 diamond.Linear.residuals <- diamond.test$price - diamond.Linear.predictions
 plot(diamond.Linear.predictions, diamond.Linear.residuals)
+```
+```{r}
 plot(diamond.test$price, diamond.Linear.residuals)
 ```
 
 
-## calculate Root Mean Squared Error (RMSE)
+calculate Root Mean Squared Error (RMSE)
 ```{r}
 diamond.Linear.rmse <- sqrt(mean(diamond.Linear.residuals^2))
 print(diamond.Linear.rmse)
 ```
 
-## calculate Mean Absolute Error (MAE)
+calculate Mean Absolute Error (MAE)
 ```{r}
 diamond.Linear.mae <- mean(abs(diamond.Linear.residuals))
 print(diamond.Linear.mae)
 ```
 
-## R squared (coefficient of determination)
+R squared (coefficient of determination)
 ```{r}
 diamond.ss.tot <- sum((diamond.test$price - mean(diamond.test$price))^2)
 diamond.Linear.ss.res <- sum(diamond.Linear.residuals^2)
