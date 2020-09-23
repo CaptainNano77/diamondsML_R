@@ -362,21 +362,68 @@ print(diamond.Linear.r2)
 REPORT GENERATION
 
 ```{r}
-print('REPORT')
 print("Decision Tree")
-print(maeTree)
+maeTree
 print("Random Forest")
-print(maeForest)
+maeForest
 print("Linear Regression")
-print(maeLinear)
+maeLinear
 ```
 
 The Random Forest Model clearly did this best as far as mean absolute error.
 
+FEATURE ENGINEERING
 
+Let's see if some new features can improve the Random Forest Model...
 
+```{r}
+head(diamond.train)
+```
+I'll start by making a new feature for y per carat (z/carat). I'll label this feature as "yPerCarat"
 
+```{r}
+diamond.train$yPerCarat <- diamond.train$y / diamond.train$carat
+diamond.test$yPerCarat <- diamond.test$y / diamond.test$carat
+head(diamond.train, 2)
+head(diamond.test, 2)
+```
+ I can see that the new feature was added to the datasets and calculated correctly.
+ 
+ Now, I'll try the Random Forest Again...
+ 
+```{r}
+diamond.RandomForest2 <- randomForest(price ~ ., data=diamond.train)
+maeForest2 <- mae(model = diamond.RandomForest2, data=diamond.test)
+maeForest2
+```
 
+```{r}
+diamond.RandomForest2
+```
 
+What features does the RF think are important?
+```{r}
+importance(diamond.RandomForest2)
+```
 
+```{r}
+varImpPlot(diamond.RandomForest2, sort=TRUE, col="purple")
+```
+MODEL EVALUATION
+Predict test set outcomes, reporting class labels
+```{r}
+diamond.rf.predictions2 <- predict(diamond.RandomForest2, diamond.test, type="response")
+```
+
+calculate the confusion matrix
+```{r}
+diamond.rf.confusion2 <- table(diamond.rf.predictions2, diamond.test$price)
+#print(diamond.rf.confusion)
+```
+
+accuracy
+```{r}
+diamond.rf.accuracy2 <- sum(diag(diamond.rf.confusion2)) / sum(diamond.rf.confusion2)
+print(diamond.rf.accuracy2)
+```
 
